@@ -170,6 +170,7 @@ class SystemFeatureModel(BaseModel):
     plugin_installation_permission: PluginInstallationPermissionModel = PluginInstallationPermissionModel()
     enable_change_email: bool = True
     plugin_manager: PluginManagerModel = PluginManagerModel()
+    common_layout_header_visible: bool = True
 
 
 class FeatureService:
@@ -207,9 +208,9 @@ class FeatureService:
 
         if dify_config.ENTERPRISE_ENABLED:
             system_features.branding.enabled = True
-            system_features.webapp_auth.enabled = True
+            system_features.webapp_auth.enabled = dify_config.ENTERPRISE_WEBAPP_AUTH_ENABLED
             system_features.enable_change_email = False
-            system_features.plugin_manager.enabled = True
+            system_features.plugin_manager.enabled = dify_config.ENTERPRISE_PLUGIN_MANAGER_ENABLED
             cls._fulfill_params_from_enterprise(system_features)
 
         if dify_config.MARKETPLACE_ENABLED:
@@ -225,6 +226,7 @@ class FeatureService:
         system_features.is_allow_register = dify_config.ALLOW_REGISTER
         system_features.is_allow_create_workspace = dify_config.ALLOW_CREATE_WORKSPACE
         system_features.is_email_setup = dify_config.MAIL_TYPE is not None and dify_config.MAIL_TYPE != ""
+        system_features.common_layout_header_visible = dify_config.COMMON_LAYOUT_HEADER_VISIBLE
 
     @classmethod
     def _fulfill_params_from_env(cls, features: FeatureModel):
@@ -307,7 +309,20 @@ class FeatureService:
 
     @classmethod
     def _fulfill_params_from_enterprise(cls, features: SystemFeatureModel):
-        enterprise_info = EnterpriseService.get_info()
+        # set default branding from env
+        if dify_config.ENTERPRISE_BRANDING_APPLICATION_TITLE:
+            features.branding.application_title = dify_config.ENTERPRISE_BRANDING_APPLICATION_TITLE
+        if dify_config.ENTERPRISE_BRANDING_LOGIN_PAGE_LOGO:
+            features.branding.login_page_logo = dify_config.ENTERPRISE_BRANDING_LOGIN_PAGE_LOGO
+        if dify_config.ENTERPRISE_BRANDING_WORKSPACE_LOGO:
+            features.branding.workspace_logo = dify_config.ENTERPRISE_BRANDING_WORKSPACE_LOGO
+        if dify_config.ENTERPRISE_BRANDING_FAVICON:
+            features.branding.favicon = dify_config.ENTERPRISE_BRANDING_FAVICON
+
+        try:
+            enterprise_info = EnterpriseService.get_info()
+        except Exception:
+            enterprise_info = {}
 
         if "SSOEnforcedForSignin" in enterprise_info:
             features.sso_enforced_for_signin = enterprise_info["SSOEnforcedForSignin"]
@@ -328,10 +343,14 @@ class FeatureService:
             features.is_allow_create_workspace = enterprise_info["IsAllowCreateWorkspace"]
 
         if "Branding" in enterprise_info:
-            features.branding.application_title = enterprise_info["Branding"].get("applicationTitle", "")
-            features.branding.login_page_logo = enterprise_info["Branding"].get("loginPageLogo", "")
-            features.branding.workspace_logo = enterprise_info["Branding"].get("workspaceLogo", "")
-            features.branding.favicon = enterprise_info["Branding"].get("favicon", "")
+            features.branding.application_title = enterprise_info["Branding"].get("applicationTitle") \
+                or features.branding.application_title
+            features.branding.login_page_logo = enterprise_info["Branding"].get("loginPageLogo") \
+                or features.branding.login_page_logo
+            features.branding.workspace_logo = enterprise_info["Branding"].get("workspaceLogo") \
+                or features.branding.workspace_logo
+            features.branding.favicon = enterprise_info["Branding"].get("favicon") \
+                or features.branding.favicon
 
         if "WebAppAuth" in enterprise_info:
             features.webapp_auth.allow_sso = enterprise_info["WebAppAuth"].get("allowSso", False)

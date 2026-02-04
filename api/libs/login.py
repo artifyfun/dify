@@ -71,9 +71,11 @@ def login_required(func: Callable[P, R]):
     @wraps(func)
     def decorated_view(*args: P.args, **kwargs: P.kwargs):
         if request.method in EXEMPT_METHODS or dify_config.LOGIN_DISABLED:
-            pass
-        elif current_user is not None and not current_user.is_authenticated:
+            return current_app.ensure_sync(func)(*args, **kwargs)
+
+        if current_user is not None and not current_user.is_authenticated:
             return current_app.login_manager.unauthorized()  # type: ignore
+
         # we put csrf validation here for less conflicts
         # TODO: maybe find a better place for it.
         check_csrf_token(request, current_user.id)
@@ -82,17 +84,55 @@ def login_required(func: Callable[P, R]):
     return decorated_view
 
 
+#: A proxy for the current user. If no user is logged in, this will be an
+#: anonymous user
+# NOTE: Any here, but use _get_current_object to check the fields
+current_user: Any = LocalProxy(lambda: _get_user())
+
+
 def _get_user() -> EndUser | Account | None:
     if has_request_context():
         if "_login_user" not in g:
             current_app.login_manager._load_user()  # type: ignore
 
-        return g._login_user
+        # If LOGIN_DISABLED is True and no user is authenticated, try to auto-login
+        if dify_config.LOGIN_DISABLED:
+            user = g.get("_login_user")
+            if user is None or not getattr(user, "is_authenticated", False):
+                import logging
+
+                from extensions.ext_database import db
+                logger = logging.getLogger(__name__)
+
+                account = None
+                # Method 1: Try to load from configured DEFAULT_LOGIN_USER
+                if dify_config.DEFAULT_LOGIN_USER:
+                    account = (
+                        db.session.query(Account)
+                        .filter(Account.email == dify_config.DEFAULT_LOGIN_USER, Account.status == "active")
+                        .first()
+                    )
+                    if not account:
+                        logger.warning(
+                            "LOGIN_DISABLED is true but DEFAULT_LOGIN_USER %s not found or not active.",
+                            dify_config.DEFAULT_LOGIN_USER
+                        )
+
+                # Method 2: Fallback to the first active account if not configured or not found
+                if not account:
+                    account = db.session.query(Account).filter(Account.status == "active").first()
+                    if not account:
+                        logger.error("LOGIN_DISABLED is true but no active account found in database.")
+
+                if account:
+                    from services.account_service import AccountService
+
+                    # Use AccountService to properly load the user (sets current_tenant, etc.)
+                    loaded_account = AccountService.load_user(account.id)
+                    if loaded_account:
+                        g._login_user = loaded_account
+                        logger.info("Auto-logged in user: %s (LOGIN_DISABLED=true)", loaded_account.email)
+
+        return g.get("_login_user")
 
     return None
-
-
-#: A proxy for the current user. If no user is logged in, this will be an
-#: anonymous user
-# NOTE: Any here, but use _get_current_object to check the fields
-current_user: Any = LocalProxy(lambda: _get_user())

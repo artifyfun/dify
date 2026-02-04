@@ -230,8 +230,12 @@ class PluginService:
         """
         Fetch plugin installation tasks
         """
-        manager = PluginInstaller()
-        return manager.fetch_plugin_installation_tasks(tenant_id, page, page_size)
+        try:
+            manager = PluginInstaller()
+            return manager.fetch_plugin_installation_tasks(tenant_id, page, page_size)
+        except Exception:
+            logger.exception("failed to fetch plugin installation tasks")
+            return []
 
     @staticmethod
     def fetch_install_task(tenant_id: str, task_id: str) -> PluginInstallTask:

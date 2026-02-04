@@ -1,6 +1,11 @@
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import withBundleAnalyzerInit from '@next/bundle-analyzer'
 import createMDX from '@next/mdx'
 import { codeInspectorPlugin } from 'code-inspector-plugin'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const isDev = process.env.NODE_ENV === 'development'
 const withMDX = createMDX({
@@ -75,6 +80,7 @@ const nextConfig = {
     ]
   },
   output: 'standalone',
+  outputFileTracingRoot: __dirname,
   compiler: {
     removeConsole: isDev ? false : { exclude: ['warn', 'error'] },
   },

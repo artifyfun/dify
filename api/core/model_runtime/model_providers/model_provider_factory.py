@@ -61,7 +61,11 @@ class ModelProviderFactory:
             contexts.plugin_model_providers.set(plugin_model_providers)
 
             # Fetch plugin model providers
-            plugin_providers = self.plugin_model_manager.fetch_model_providers(self.tenant_id)
+            try:
+                plugin_providers = self.plugin_model_manager.fetch_model_providers(self.tenant_id)
+            except Exception:
+                logger.exception("Failed to fetch plugin model providers from daemon")
+                plugin_providers = []
 
             for provider in plugin_providers:
                 provider.declaration.provider = provider.plugin_id + "/" + provider.declaration.provider

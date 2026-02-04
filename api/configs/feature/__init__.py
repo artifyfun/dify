@@ -63,6 +63,11 @@ class SecurityConfig(BaseSettings):
         default=None,
     )
 
+    DEFAULT_LOGIN_USER: str | None = Field(
+        description="Email of the default user to auto-login when LOGIN_DISABLED is true",
+        default=None,
+    )
+
 
 class AppExecutionConfig(BaseSettings):
     """
@@ -1294,6 +1299,17 @@ class SandboxExpiredRecordsCleanConfig(BaseSettings):
     )
 
 
+class UIConfig(BaseSettings):
+    """
+    UI-related configurations
+    """
+
+    COMMON_LAYOUT_HEADER_VISIBLE: bool = Field(
+        description="Whether to show the header wrapper in common layout",
+        default=True,
+    )
+
+
 class FeatureConfig(
     # place the configs in alphabet order
     AppExecutionConfig,
@@ -1330,6 +1346,7 @@ class FeatureConfig(
     LoginConfig,
     AccountConfig,
     SwaggerUIConfig,
+    UIConfig,
     # hosted services config
     HostedServiceConfig,
     CeleryBeatConfig,

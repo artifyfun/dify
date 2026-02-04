@@ -3,6 +3,7 @@ import { usePathname } from 'next/navigation'
 import * as React from 'react'
 import { useState } from 'react'
 import { useEventEmitterContextContext } from '@/context/event-emitter'
+import { useGlobalPublicStore } from '@/context/global-public-context'
 import { cn } from '@/utils/classnames'
 import s from './index.module.css'
 
@@ -21,6 +22,10 @@ const HeaderWrapper = ({
   const workflowCanvasMaximize = localStorage.getItem('workflow-canvas-maximize') === 'true'
   const [hideHeader, setHideHeader] = useState(workflowCanvasMaximize)
   const { eventEmitter } = useEventEmitterContextContext()
+  const systemFeatures = useGlobalPublicStore(s => s.systemFeatures)
+
+  if (!systemFeatures.common_layout_header_visible)
+    return null
 
   eventEmitter?.useSubscription((v: any) => {
     if (v?.type === 'workflow-canvas-maximize')

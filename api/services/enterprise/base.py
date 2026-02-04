@@ -1,8 +1,9 @@
-import os
 from collections.abc import Mapping
 from typing import Any
 
 import httpx
+
+from configs import dify_config
 
 
 class BaseRequest:
@@ -35,21 +36,45 @@ class BaseRequest:
         json: Any | None = None,
         params: Mapping[str, Any] | None = None,
     ) -> Any:
-        headers = {"Content-Type": "application/json", cls.secret_key_header: cls.secret_key}
-        url = f"{cls.base_url}{endpoint}"
+        base_url = cls.get_base_url()
+        if not base_url or not (base_url.startswith("http://") or base_url.startswith("https://")):
+            return {}
+
+        headers = {"Content-Type": "application/json", cls.secret_key_header: cls.get_secret_key()}
+        url = f"{base_url}{endpoint}"
         mounts = cls._build_mounts()
         with httpx.Client(mounts=mounts) as client:
             response = client.request(method, url, json=json, params=params, headers=headers)
         return response.json()
 
+    @classmethod
+    def get_base_url(cls):
+        return cls.base_url
+
+    @classmethod
+    def get_secret_key(cls):
+        return cls.secret_key
+
 
 class EnterpriseRequest(BaseRequest):
-    base_url = os.environ.get("ENTERPRISE_API_URL", "ENTERPRISE_API_URL")
-    secret_key = os.environ.get("ENTERPRISE_API_SECRET_KEY", "ENTERPRISE_API_SECRET_KEY")
+    @classmethod
+    def get_base_url(cls):
+        return dify_config.ENTERPRISE_API_URL
+
+    @classmethod
+    def get_secret_key(cls):
+        return dify_config.ENTERPRISE_API_SECRET_KEY
+
     secret_key_header = "Enterprise-Api-Secret-Key"
 
 
 class EnterprisePluginManagerRequest(BaseRequest):
-    base_url = os.environ.get("ENTERPRISE_PLUGIN_MANAGER_API_URL", "ENTERPRISE_PLUGIN_MANAGER_API_URL")
-    secret_key = os.environ.get("ENTERPRISE_PLUGIN_MANAGER_API_SECRET_KEY", "ENTERPRISE_PLUGIN_MANAGER_API_SECRET_KEY")
+    @classmethod
+    def get_base_url(cls):
+        return dify_config.ENTERPRISE_PLUGIN_MANAGER_API_URL
+
+    @classmethod
+    def get_secret_key(cls):
+        return dify_config.ENTERPRISE_PLUGIN_MANAGER_API_SECRET_KEY
+
     secret_key_header = "Plugin-Manager-Inner-Api-Secret-Key"

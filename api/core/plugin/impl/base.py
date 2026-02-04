@@ -234,11 +234,14 @@ class BasePluginClient:
             response = self._request(method, path, headers, data, params, files)
             response.raise_for_status()
         except httpx.HTTPStatusError as e:
-            logger.exception("Failed to request plugin daemon, status: %s, url: %s", e.response.status_code, path)
+            if e.response.status_code == 502:
+                logger.warning("Plugin daemon returned 502 Bad Gateway at %s", path)
+            else:
+                logger.exception("Failed to request plugin daemon, status: %s, url: %s", e.response.status_code, path)
             raise e
         except Exception as e:
             msg = f"Failed to request plugin daemon, url: {path}"
-            logger.exception("Failed to request plugin daemon, url: %s", path)
+            logger.warning("Failed to request plugin daemon, url: %s", path)
             raise ValueError(msg) from e
 
         try:

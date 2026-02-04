@@ -67,30 +67,38 @@ class EnterpriseService:
             if not app_id:
                 raise ValueError("app_id must be provided.")
             params = {"appId": app_id}
-            data = EnterpriseRequest.send_request("GET", "/webapp/access-mode/id", params=params)
-            if not data:
-                raise ValueError("No data found.")
-            return WebAppSettings.model_validate(data)
+            try:
+                data = EnterpriseRequest.send_request("GET", "/webapp/access-mode/id", params=params)
+                if not data:
+                    raise ValueError("No data found.")
+                return WebAppSettings.model_validate(data)
+            except Exception:
+                # fall back to default access mode
+                return WebAppSettings()
 
         @classmethod
         def batch_get_app_access_mode_by_id(cls, app_ids: list[str]) -> dict[str, WebAppSettings]:
             if not app_ids:
                 return {}
             body = {"appIds": app_ids}
-            data: dict[str, str] = EnterpriseRequest.send_request("POST", "/webapp/access-mode/batch/id", json=body)
-            if not data:
-                raise ValueError("No data found.")
+            try:
+                data: dict[str, str] = EnterpriseRequest.send_request("POST", "/webapp/access-mode/batch/id", json=body)
+                if not data:
+                    raise ValueError("No data found.")
 
-            if not isinstance(data["accessModes"], dict):
-                raise ValueError("Invalid data format.")
+                if not isinstance(data["accessModes"], dict):
+                    raise ValueError("Invalid data format.")
 
-            ret = {}
-            for key, value in data["accessModes"].items():
-                curr = WebAppSettings()
-                curr.access_mode = value
-                ret[key] = curr
+                ret = {}
+                for key, value in data["accessModes"].items():
+                    curr = WebAppSettings()
+                    curr.access_mode = value
+                    ret[key] = curr
 
-            return ret
+                return ret
+            except Exception:
+                # fall back to default access mode for all apps
+                return {app_id: WebAppSettings() for app_id in app_ids}
 
         @classmethod
         def update_app_access_mode(cls, app_id: str, access_mode: str):
