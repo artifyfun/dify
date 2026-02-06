@@ -2,13 +2,15 @@
 import type { FC } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import * as React from 'react'
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import AppUnavailable from '@/app/components/base/app-unavailable'
+import Loading from '@/app/components/base/loading'
 import { useGlobalPublicStore } from '@/context/global-public-context'
 import { useWebAppStore } from '@/context/web-app-context'
 import { AccessMode } from '@/models/access-control'
-import { webAppLogout } from '@/service/webapp-auth'
+import { fetchAccessToken } from '@/service/share'
+import { setWebAppPassport, webAppLogout } from '@/service/webapp-auth'
 import ExternalMemberSsoAuth from './components/external-member-sso-auth'
 import NormalForm from './normalForm'
 
@@ -34,6 +36,20 @@ const WebSSOForm: FC = () => {
     router.replace(url)
   }, [getSigninUrl, router, webAppLogout, shareCode])
 
+  const [isAutoLoggingIn, setIsAutoLoggingIn] = useState(false)
+
+  useEffect(() => {
+    if (!systemFeatures.webapp_auth.enabled && shareCode && redirectUrl) {
+      setIsAutoLoggingIn(true)
+      fetchAccessToken({ appCode: shareCode }).then((res) => {
+        setWebAppPassport(shareCode, res.access_token)
+        router.replace(decodeURIComponent(redirectUrl))
+      }).catch(() => {
+        setIsAutoLoggingIn(false)
+      })
+    }
+  }, [systemFeatures.webapp_auth.enabled, shareCode, redirectUrl, router])
+
   if (!redirectUrl) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -43,6 +59,13 @@ const WebSSOForm: FC = () => {
   }
 
   if (!systemFeatures.webapp_auth.enabled) {
+    if (isAutoLoggingIn) {
+      return (
+        <div className="flex h-full items-center justify-center">
+          <Loading type="area" />
+        </div>
+      )
+    }
     return (
       <div className="flex h-full items-center justify-center">
         <p className="system-xs-regular text-text-tertiary">{t('webapp.disabled', { ns: 'login' })}</p>
