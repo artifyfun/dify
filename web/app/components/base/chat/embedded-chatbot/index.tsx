@@ -9,7 +9,7 @@ import Loading from '@/app/components/base/loading'
 import DifyLogo from '@/app/components/base/logo/dify-logo'
 import LogoHeader from '@/app/components/base/logo/logo-embedded-chat-header'
 import { useGlobalPublicStore } from '@/context/global-public-context'
-import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
+// import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
 import useDocumentTitle from '@/hooks/use-document-title'
 import { cn } from '@/utils/classnames'
 import {
@@ -96,8 +96,9 @@ const Chatbot = () => {
 }
 
 const EmbeddedChatbotWrapper = () => {
-  const media = useBreakpoints()
-  const isMobile = media === MediaType.mobile
+  // const media = useBreakpoints()
+  // const isMobile = media === MediaType.mobile
+  const isMobile = false
   const themeBuilder = useThemeContext()
 
   const {

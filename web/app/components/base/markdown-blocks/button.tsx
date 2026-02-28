@@ -9,6 +9,8 @@ const MarkdownButton = ({ node }: any) => {
   const message = node.properties.dataMessage
   const link = node.properties.dataLink
   const size = node.properties.dataSize
+  const action = node.properties.dataAction
+  const payload = node.properties.dataPayload
 
   return (
     <Button
@@ -16,6 +18,14 @@ const MarkdownButton = ({ node }: any) => {
       size={size}
       className={cn('!h-auto min-h-8 select-none whitespace-normal !px-3')}
       onClick={() => {
+        if (action === 'post_message') {
+          const targetOrigin = document.referrer ? new URL(document.referrer).origin : '*'
+          window.parent.postMessage({
+            type: 'dify-custom-action',
+            payload,
+          }, targetOrigin)
+          return
+        }
         if (link && isValidUrl(link)) {
           window.open(link, '_blank')
           return

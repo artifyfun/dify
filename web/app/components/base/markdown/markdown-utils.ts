@@ -41,6 +41,16 @@ export const preprocessThinkTag = (content: string) => {
   ])(content)
 }
 
+export const preprocessCustomButtons = (content: string) => {
+  if (typeof content !== 'string')
+    return content
+
+  // Match [BUTTON:Label|Action|Payload]
+  return content.replace(/\[BUTTON:(.*?)\|(.*?)\|(.*?)\]/g, (_, label, action, payload) => {
+    return `<button data-action="${action}" data-payload="${payload.replace(/"/g, '&quot;')}">${label}</button>`
+  })
+}
+
 /**
  * Transforms a URI for use in react-markdown, ensuring security and compatibility.
  * This function is designed to work with react-markdown v9+ which has stricter

@@ -31,6 +31,7 @@ const BasicContent: FC<BasicContentProps> = ({
         item.isError && '!text-[#F04438]',
       )}
       content={displayContent}
+      allowCustomButtons={true}
     />
   )
 }

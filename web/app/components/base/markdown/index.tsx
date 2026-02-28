@@ -2,7 +2,7 @@ import type { ReactMarkdownWrapperProps, SimplePluginInfo } from './react-markdo
 import { flow } from 'es-toolkit/compat'
 import dynamic from 'next/dynamic'
 import { cn } from '@/utils/classnames'
-import { preprocessLaTeX, preprocessThinkTag } from './markdown-utils'
+import { preprocessCustomButtons, preprocessLaTeX, preprocessThinkTag } from './markdown-utils'
 import 'katex/dist/katex.min.css'
 
 const ReactMarkdown = dynamic(() => import('./react-markdown-wrapper').then(mod => mod.ReactMarkdownWrapper), { ssr: false })
@@ -18,18 +18,23 @@ export type MarkdownProps = {
   content: string
   className?: string
   pluginInfo?: SimplePluginInfo
+  allowCustomButtons?: boolean
 } & Pick<ReactMarkdownWrapperProps, 'customComponents' | 'customDisallowedElements'>
 
 export const Markdown = (props: MarkdownProps) => {
-  const { customComponents = {}, pluginInfo } = props
-  const latexContent = flow([
+  const { customComponents = {}, pluginInfo, allowCustomButtons } = props
+  const preprocessors = [
     preprocessThinkTag,
     preprocessLaTeX,
-  ])(props.content)
+  ]
+  if (allowCustomButtons)
+    preprocessors.push(preprocessCustomButtons)
+
+  const processedContent = flow(preprocessors)(props.content)
 
   return (
     <div className={cn('markdown-body', '!text-text-primary', props.className)}>
-      <ReactMarkdown pluginInfo={pluginInfo} latexContent={latexContent} customComponents={customComponents} customDisallowedElements={props.customDisallowedElements} />
+      <ReactMarkdown pluginInfo={pluginInfo} latexContent={processedContent} customComponents={customComponents} customDisallowedElements={props.customDisallowedElements} />
     </div>
   )
 }
