@@ -38,7 +38,10 @@ import { useAppWhiteListSubjects } from '@/service/access-control'
 import { fetchAppDetailDirect } from '@/service/apps'
 import { useAppWorkflow } from '@/service/use-workflow'
 import { AppModeEnum } from '@/types/app'
-import { asyncRunSafe } from '@/utils'
+import {
+  asyncRunSafe,
+  getCorrectedAppBaseUrl,
+} from '@/utils'
 import { basePath } from '@/utils/var'
 import AccessControl from '../app-access-control'
 import CustomizeModal from './customize'
@@ -119,7 +122,9 @@ function AppCard({
   const toggleDisabled = hasInsufficientPermissions || appUnpublished || missingStartNode || triggerModeDisabled
   const runningStatus = (appUnpublished || missingStartNode) ? false : (isApp ? appInfo.enable_site : appInfo.enable_api)
   const isMinimalState = appUnpublished || missingStartNode
-  const { app_base_url, access_token } = appInfo.site ?? {}
+  const { app_base_url: raw_app_base_url, access_token } = appInfo.site ?? {}
+  const app_base_url = useMemo(() => getCorrectedAppBaseUrl(raw_app_base_url), [raw_app_base_url])
+
   const appMode = (appInfo.mode !== AppModeEnum.COMPLETION && appInfo.mode !== AppModeEnum.WORKFLOW) ? AppModeEnum.CHAT : appInfo.mode
   const appUrl = `${app_base_url}${basePath}/${appMode}/${access_token}`
   const apiUrl = appInfo?.api_base_url

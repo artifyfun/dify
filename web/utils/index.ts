@@ -90,3 +90,18 @@ export const canFindTool = (providerId: string, oldToolId?: string) => {
     || providerId === `langgenius/${oldToolId}/${oldToolId}`
     || providerId === `langgenius/${oldToolId}_tool/${oldToolId}`
 }
+
+export const getCorrectedAppBaseUrl = (raw_app_base_url: string) => {
+  if (!raw_app_base_url || typeof window === 'undefined')
+    return raw_app_base_url
+  try {
+    const url = new URL(raw_app_base_url)
+    const currentLoc = window.location
+    if (!url.port && currentLoc.port && url.hostname === currentLoc.hostname && url.protocol === currentLoc.protocol) {
+      url.port = currentLoc.port
+      return url.origin
+    }
+  }
+  catch (e) {}
+  return raw_app_base_url
+}

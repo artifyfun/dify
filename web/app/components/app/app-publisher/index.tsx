@@ -44,6 +44,7 @@ import { useAppWhiteListSubjects, useGetUserCanAccessApp } from '@/service/acces
 import { fetchAppDetailDirect } from '@/service/apps'
 import { fetchInstalledAppList } from '@/service/explore'
 import { AppModeEnum } from '@/types/app'
+import { getCorrectedAppBaseUrl } from '@/utils'
 import { basePath } from '@/utils/var'
 import Divider from '../../base/divider'
 import Loading from '../../base/loading'
@@ -150,7 +151,8 @@ const AppPublisher = ({
   const setAppDetail = useAppStore(s => s.setAppDetail)
   const systemFeatures = useGlobalPublicStore(s => s.systemFeatures)
   const { formatTimeFromNow } = useFormatTimeFromNow()
-  const { app_base_url: appBaseURL = '', access_token: accessToken = '' } = appDetail?.site ?? {}
+  const { app_base_url: rawAppBaseURL = '', access_token: accessToken = '' } = appDetail?.site ?? {}
+  const appBaseURL = useMemo(() => getCorrectedAppBaseUrl(rawAppBaseURL), [rawAppBaseURL])
 
   const appMode = (appDetail?.mode !== AppModeEnum.COMPLETION && appDetail?.mode !== AppModeEnum.WORKFLOW) ? AppModeEnum.CHAT : appDetail.mode
   const appURL = `${appBaseURL}${basePath}/${appMode}/${accessToken}`
@@ -405,7 +407,7 @@ const AppPublisher = ({
                       </div>
                     )}
                     {
-                      // Hide run/batch run app buttons when there is a trigger node.
+                    // Hide run/batch run app buttons when there is a trigger node.
                       !hasTriggerNode && (
                         <div className="flex flex-col gap-y-1 border-t-[0.5px] border-t-divider-regular p-4 pt-3">
                           <Tooltip triggerClassName="flex" disabled={!disabledFunctionButton} popupContent={disabledFunctionTooltip} asChild={false}>
