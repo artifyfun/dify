@@ -5,7 +5,7 @@ import { isValidUrl } from './utils'
 
 const MarkdownButton = ({ node }: any) => {
   const { onSend } = useChatContext()
-  const variant = node.properties.dataVariant
+  const variant = node.properties.dataVariant || 'secondary-accent'
   const message = node.properties.dataMessage
   const link = node.properties.dataLink
   const size = node.properties.dataSize
@@ -35,7 +35,7 @@ const MarkdownButton = ({ node }: any) => {
         onSend?.(message)
       }}
     >
-      <span className="text-[13px]">{node.children[0]?.value || ''}</span>
+      <span className="text-[13px] font-medium text-primary-600">{node.children[0]?.value || ''}</span>
     </Button>
   )
 }
