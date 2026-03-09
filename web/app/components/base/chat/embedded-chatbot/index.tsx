@@ -1,6 +1,8 @@
 'use client'
 import {
+  useCallback,
   useEffect,
+  useState,
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import ChatWrapper from '@/app/components/base/chat/embedded-chatbot/chat-wrapper'
@@ -12,6 +14,7 @@ import { useGlobalPublicStore } from '@/context/global-public-context'
 // import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
 import useDocumentTitle from '@/hooks/use-document-title'
 import { cn } from '@/utils/classnames'
+import { isClient } from '@/utils/client'
 import {
   EmbeddedChatbotContext,
   useEmbeddedChatbotContext,
@@ -30,6 +33,7 @@ const Chatbot = () => {
     chatShouldReloadKey,
     handleNewConversation,
     themeBuilder,
+    currentChatInstanceRef,
   } = useEmbeddedChatbotContext()
   const { t } = useTranslation()
   const systemFeatures = useGlobalPublicStore(s => s.systemFeatures)
@@ -38,6 +42,28 @@ const Chatbot = () => {
   const site = appData?.site
 
   const difyIcon = <LogoHeader />
+
+  const [hideHeader, setHideHeader] = useState(false)
+
+  const handleMessage = useCallback((event: MessageEvent) => {
+    if (event.data.type === 'dify-chatbot-reset-chat')
+      handleNewConversation()
+    if (event.data.type === 'dify-chatbot-send-message')
+      currentChatInstanceRef.current.handleSend?.(event.data.payload.message, event.data.payload.files)
+  }, [handleNewConversation, currentChatInstanceRef])
+
+  useEffect(() => {
+    if (isClient) {
+      window.addEventListener('message', handleMessage)
+      const urlParams = new URLSearchParams(window.location.search)
+      if (urlParams.get('hide_header') === '1')
+        setHideHeader(true)
+    }
+    return () => {
+      if (isClient)
+        window.removeEventListener('message', handleMessage)
+    }
+  }, [handleMessage])
 
   useEffect(() => {
     themeBuilder?.buildTheme(site?.chat_color_theme, site?.chat_color_theme_inverted)
@@ -54,14 +80,16 @@ const Chatbot = () => {
         )}
         style={isMobile ? Object.assign({}, CssTransform(themeBuilder?.theme?.backgroundHeaderColorStyle ?? '')) : {}}
       >
-        <Header
-          isMobile={isMobile}
-          allowResetChat={allowResetChat}
-          title={site?.title || ''}
-          customerIcon={isDify() ? difyIcon : ''}
-          theme={themeBuilder?.theme}
-          onCreateNewChat={handleNewConversation}
-        />
+        {!hideHeader && (
+          <Header
+            isMobile={isMobile}
+            allowResetChat={allowResetChat}
+            title={site?.title || ''}
+            customerIcon={isDify() ? difyIcon : ''}
+            theme={themeBuilder?.theme}
+            onCreateNewChat={handleNewConversation}
+          />
+        )}
         <div className={cn('flex grow flex-col overflow-y-auto', isMobile && 'm-[0.5px] !h-[calc(100vh_-_3rem)] rounded-2xl bg-chatbot-bg')}>
           {appChatListDataLoading && (
             <Loading type="app" />

@@ -40,7 +40,7 @@ export type EmbeddedChatbotContextValue = {
   allowResetChat: boolean
   appId?: string
   handleFeedback: (messageId: string, feedback: Feedback) => void
-  currentChatInstanceRef: RefObject<{ handleStop: () => void }>
+  currentChatInstanceRef: RefObject<{ handleStop: () => void, handleSend?: (message: string, files?: any[]) => void }>
   themeBuilder?: ThemeBuilder
   clearChatList?: boolean
   setClearChatList: (state: boolean) => void

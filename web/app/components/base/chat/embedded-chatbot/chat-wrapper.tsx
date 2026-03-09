@@ -119,10 +119,6 @@ const ChatWrapper = () => {
   }, [inputsFormValue, inputsForms, allInputsHidden])
 
   useEffect(() => {
-    if (currentChatInstanceRef.current)
-      currentChatInstanceRef.current.handleStop = handleStop
-  }, [currentChatInstanceRef, handleStop])
-  useEffect(() => {
     setIsResponding(respondingState)
   }, [respondingState, setIsResponding])
 
@@ -145,6 +141,13 @@ const ChatWrapper = () => {
       },
     )
   }, [currentConversationId, currentConversationInputs, newConversationInputs, chatList, handleSend, isInstalledApp, appId, handleNewConversationCompleted])
+
+  useEffect(() => {
+    if (currentChatInstanceRef.current) {
+      currentChatInstanceRef.current.handleStop = handleStop
+      currentChatInstanceRef.current.handleSend = doSend
+    }
+  }, [currentChatInstanceRef, handleStop, doSend])
 
   const doRegenerate = useCallback((chatItem: ChatItem, editedQuestion?: { message: string, files?: FileEntity[] }) => {
     const question = editedQuestion ? chatItem : chatList.find(item => item.id === chatItem.parentMessageId)!
