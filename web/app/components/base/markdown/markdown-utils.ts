@@ -45,9 +45,12 @@ export const preprocessCustomButtons = (content: string) => {
   if (typeof content !== 'string')
     return content
 
-  // Match [BUTTON:Label|Action|Payload]
-  return content.replace(/\[BUTTON:(.*?)\|(.*?)\|(.*?)\]/g, (_, label, action, payload) => {
-    return `<button data-action="${action}" data-payload="${payload.replace(/"/g, '&quot;')}">${label}</button>`
+  // Match [BUTTON:Label|Action|Payload] or [BUTTON:Label|Action|Payload|Variant]
+  return content.replace(/\[BUTTON:([^\]|]*)\|([^\]|]*)\|([^\]|]*)(?:\|([^\]|]*))?\]/g, (_, label, action, payload, variant) => {
+    let finalVariant = variant
+    if (variant === 'text')
+      finalVariant = 'ghost'
+    return `<button data-action="${action}" data-payload="${payload.replace(/"/g, '&quot;')}"${finalVariant ? ` data-variant="${finalVariant}"` : ''}>${label}</button>`
   })
 }
 
