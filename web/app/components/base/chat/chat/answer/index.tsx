@@ -20,7 +20,6 @@ import AgentContent from './agent-content'
 import BasicContent from './basic-content'
 import More from './more'
 import Operation from './operation'
-import SuggestedQuestions from './suggested-questions'
 import WorkflowProcessItem from './workflow-process'
 
 type AnswerProps = {
@@ -114,8 +113,8 @@ const Answer: FC<AnswerProps> = ({
   const contentIsEmpty = typeof content === 'string' && content.trim() === ''
 
   return (
-    <div className="mb-2 flex last:mb-0">
-      <div className="relative h-10 w-10 shrink-0">
+    <div className="mb-4 flex last:mb-0">
+      <div className="relative h-10 w-10 shrink-0" style={{ width: '28px', height: '28px' }}>
         {answerIcon || <AnswerIcon />}
         {responding && (
           <div className="absolute left-[-3px] top-[-3px] flex h-4 w-4 items-center rounded-full border-[0.5px] border-divider-subtle bg-background-section-burn pl-[6px] shadow-xs">
@@ -123,11 +122,16 @@ const Answer: FC<AnswerProps> = ({
           </div>
         )}
       </div>
-      <div className="chat-answer-container group ml-4 w-0 grow pb-4" ref={containerRef}>
-        <div className={cn('group relative pr-10', chatAnswerContainerInner)}>
+      <div className="chat-answer-container group ml-2 w-0 grow" ref={containerRef}>
+        <div className={cn('group relative', chatAnswerContainerInner)}>
           <div
             ref={contentRef}
-            className={cn('body-lg-regular relative inline-block max-w-full rounded-2xl bg-chat-bubble-bg px-4 py-3 text-text-primary', workflowProcess && 'w-full')}
+            className={cn('body-lg-regular relative inline-block max-w-full bg-chat-bubble-bg px-4 py-3 text-text-primary', workflowProcess && 'w-full')}
+            style={{
+              borderRadius: '0 12px 12px 12px',
+              padding: '8px 16px',
+              boxShadow: '0 4px 8px 0 rgba(49, 108, 184, 0.03)',
+            }}
           >
             {
               !responding && (
@@ -205,7 +209,7 @@ const Answer: FC<AnswerProps> = ({
                 />
               )
             }
-            <SuggestedQuestions item={item} />
+            {/* <SuggestedQuestions item={item} /> */}
             {
               !!citation?.length && !responding && (
                 <Citation data={citation} showHitInfo={config?.supportCitationHitInfo} />

@@ -16,7 +16,6 @@ import {
 import { useTranslation } from 'react-i18next'
 import Textarea from 'react-textarea-autosize'
 import { FileList } from '@/app/components/base/file-uploader'
-import { User } from '@/app/components/base/icons/src/public/avatar'
 import { Markdown } from '@/app/components/base/markdown'
 import { cn } from '@/utils/classnames'
 import ActionButton from '../../action-button'
@@ -101,8 +100,8 @@ const Question: FC<QuestionProps> = ({
   }, [])
 
   return (
-    <div className="mb-2 flex justify-end last:mb-0">
-      <div className={cn('group relative mr-4 flex max-w-full items-start overflow-x-hidden pl-14', isEditing && 'flex-1')}>
+    <div className="mb-4 flex justify-end last:mb-0">
+      <div className={cn('group relative flex max-w-full items-start overflow-x-hidden pl-14', isEditing && 'flex-1')}>
         <div className={cn('mr-2 gap-1', isEditing ? 'hidden' : 'flex')}>
           <div
             className="absolute hidden gap-0.5 rounded-[10px] border-[0.5px] border-components-actionbar-border bg-components-actionbar-bg p-0.5 shadow-md backdrop-blur-sm group-hover:flex"
@@ -124,8 +123,17 @@ const Question: FC<QuestionProps> = ({
         </div>
         <div
           ref={contentRef}
-          className="w-full rounded-2xl bg-background-gradient-bg-fill-chat-bubble-bg-3 px-4 py-3 text-sm text-text-primary"
-          style={theme?.chatBubbleColorStyle ? CssTransform(theme.chatBubbleColorStyle) : {}}
+          className="w-full bg-background-gradient-bg-fill-chat-bubble-bg-3 px-4 py-3 text-sm text-text-primary"
+          style={{
+            borderRadius: '12px 0 12px 12px',
+            background: '#E1EFFF',
+            color: '#333333',
+            fontSize: '14px',
+            fontWeight: 500,
+            lineHeight: '28px',
+            padding: '8px 16px',
+            ...(theme?.chatBubbleColorStyle ? CssTransform(theme.chatBubbleColorStyle) : {}),
+          }}
         >
           {
             !!message_files?.length && (
@@ -174,7 +182,7 @@ const Question: FC<QuestionProps> = ({
         </div>
         <div className="mt-1 h-[18px]" />
       </div>
-      <div className="h-10 w-10 shrink-0">
+      {/* <div className="h-10 w-10 shrink-0">
         {
           questionIcon || (
             <div className="h-full w-full rounded-full border-[0.5px] border-black/5">
@@ -182,7 +190,7 @@ const Question: FC<QuestionProps> = ({
             </div>
           )
         }
-      </div>
+      </div> */}
     </div>
   )
 }

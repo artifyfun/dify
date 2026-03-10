@@ -53,6 +53,7 @@ export type EmbeddedChatbotContextValue = {
     name?: string
     avatar_url?: string
   }
+  handleUpdateInputs: (v: Record<string, any>) => void
 }
 
 export const EmbeddedChatbotContext = createContext<EmbeddedChatbotContextValue>({
@@ -86,5 +87,6 @@ export const EmbeddedChatbotContext = createContext<EmbeddedChatbotContextValue>
   setCurrentConversationInputs: noop,
   allInputsHidden: false,
   initUserVariables: {},
+  handleUpdateInputs: noop,
 })
 export const useEmbeddedChatbotContext = () => useContext(EmbeddedChatbotContext)

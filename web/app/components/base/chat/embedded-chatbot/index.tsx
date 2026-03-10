@@ -32,6 +32,7 @@ const Chatbot = () => {
     appChatListDataLoading,
     chatShouldReloadKey,
     handleNewConversation,
+    handleUpdateInputs,
     themeBuilder,
     currentChatInstanceRef,
   } = useEmbeddedChatbotContext()
@@ -48,9 +49,11 @@ const Chatbot = () => {
   const handleMessage = useCallback((event: MessageEvent) => {
     if (event.data.type === 'dify-chatbot-reset-chat')
       handleNewConversation()
+    if (event.data.type === 'dify-chatbot-update-inputs')
+      handleUpdateInputs(event.data.payload.inputs)
     if (event.data.type === 'dify-chatbot-send-message')
       currentChatInstanceRef.current.handleSend?.(event.data.payload.message, event.data.payload.files)
-  }, [handleNewConversation, currentChatInstanceRef])
+  }, [handleNewConversation, handleUpdateInputs, currentChatInstanceRef])
 
   useEffect(() => {
     if (isClient) {
@@ -161,6 +164,7 @@ const EmbeddedChatbotWrapper = () => {
     setCurrentConversationInputs,
     allInputsHidden,
     initUserVariables,
+    handleUpdateInputs,
   } = useEmbeddedChatbot()
 
   return (
@@ -198,6 +202,7 @@ const EmbeddedChatbotWrapper = () => {
       setCurrentConversationInputs,
       allInputsHidden,
       initUserVariables,
+      handleUpdateInputs,
     }}
     >
       <Chatbot />

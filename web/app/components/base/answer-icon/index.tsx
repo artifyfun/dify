@@ -21,15 +21,15 @@ const AnswerIcon: FC<AnswerIconProps> = ({
   background,
   imageUrl,
 }) => {
-  const wrapperClassName = cn('flex', 'items-center', 'justify-center', 'w-full', 'h-full', 'rounded-full', 'border-[0.5px]', 'border-black/5', 'text-xl')
+  const wrapperClassName = cn('flex', 'items-center', 'justify-center', 'w-full', 'h-full', 'text-xl')
   const isValidImageIcon = iconType === 'image' && imageUrl
   return (
     <div
       className={wrapperClassName}
-      style={{ background: background || '#D5F5F6' }}
+    // style={{ background: background || 'transparent' }}
     >
       {isValidImageIcon
-        ? <img src={imageUrl} className="h-full w-full rounded-full" alt="answer icon" />
+        ? <img src={imageUrl} className="h-full w-full" alt="answer icon" />
         : (icon && icon !== '') ? <em-emoji id={icon} /> : <em-emoji id="🤖" />}
     </div>
   )

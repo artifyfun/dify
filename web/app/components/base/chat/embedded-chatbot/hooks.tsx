@@ -414,6 +414,11 @@ export const useEmbeddedChatbot = () => {
     notify({ type: 'success', message: t('api.success', { ns: 'common' }) })
   }, [isInstalledApp, appId, t, notify])
 
+  const handleUpdateInputs = useCallback((newInputs: Record<string, any>) => {
+    handleNewConversationInputsChange(newInputs)
+    setCurrentConversationInputs(newInputs)
+  }, [handleNewConversationInputsChange])
+
   return {
     isInstalledApp,
     allowResetChat,
@@ -453,5 +458,6 @@ export const useEmbeddedChatbot = () => {
     setCurrentConversationInputs,
     allInputsHidden,
     initUserVariables,
+    handleUpdateInputs,
   }
 }
