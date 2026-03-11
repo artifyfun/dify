@@ -7,7 +7,6 @@ import type {
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import AnswerIcon from '@/app/components/base/answer-icon'
 import AppIcon from '@/app/components/base/app-icon'
-import SuggestedQuestions from '@/app/components/base/chat/chat/answer/suggested-questions'
 import InputsForm from '@/app/components/base/chat/embedded-chatbot/inputs-form'
 import LogoAvatar from '@/app/components/base/logo/logo-embedded-chat-avatar'
 import { Markdown } from '@/app/components/base/markdown'
@@ -202,8 +201,7 @@ const ChatWrapper = () => {
               className="body-lg-regular grow bg-chat-bubble-bg px-4 py-3 text-text-primary"
               style={{ borderRadius: '0 12px 12px 12px' }}
             >
-              <Markdown content={welcomeMessage.content} />
-              <SuggestedQuestions item={welcomeMessage} />
+              <Markdown content={welcomeMessage.content} allowCustomButtons={true} />
             </div>
           </div>
         </div>
@@ -219,7 +217,7 @@ const ChatWrapper = () => {
           imageUrl={appData?.site.icon_url}
         />
         <div className="max-w-[768px] px-4">
-          <Markdown className="!body-2xl-regular !text-text-tertiary" content={welcomeMessage.content} />
+          <Markdown className="!body-2xl-regular !text-text-tertiary" content={welcomeMessage.content} allowCustomButtons={true} />
         </div>
       </div>
     )
@@ -261,6 +259,7 @@ const ChatWrapper = () => {
       allToolIcons={appMeta?.tool_icons || {}}
       onFeedback={handleFeedback}
       suggestedQuestions={suggestedQuestions}
+      openingStatementItem={chatList.find(item => item.isOpeningStatement)}
       answerIcon={answerIcon}
       hideProcessDetail
       themeBuilder={themeBuilder}

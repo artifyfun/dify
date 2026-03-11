@@ -59,6 +59,7 @@ export type ChatProps = {
   onAnnotationEdited?: (question: string, answer: string, index: number) => void
   onAnnotationAdded?: (annotationId: string, authorName: string, question: string, answer: string, index: number) => void
   onAnnotationRemoved?: (index: number) => void
+  openingStatementItem?: ChatItem
   chatNode?: ReactNode
   onFeedback?: (messageId: string, feedback: Feedback) => void
   chatAnswerContainerInner?: string
@@ -97,6 +98,7 @@ const Chat: FC<ChatProps> = ({
   onAnnotationAdded,
   onAnnotationEdited,
   onAnnotationRemoved,
+  openingStatementItem,
   chatNode,
   onFeedback,
   chatAnswerContainerInner,
@@ -129,11 +131,11 @@ const Chat: FC<ChatProps> = ({
   const isAutoScrollingRef = useRef(false)
 
   // 查找是否有开场白消息，并获取其携带的建议问题
-  const openingStatementItem = chatList.find(item => item.isOpeningStatement)
+  const _openingStatementItem = openingStatementItem || chatList.find(item => item.isOpeningStatement)
   // 如果当前还没有动态生成的建议，且处于对话开始阶段（消息列表较短），则使用开场白的建议
   const displayQuestions = (suggestedQuestions && suggestedQuestions.length > 0)
     ? suggestedQuestions
-    : (openingStatementItem?.suggestedQuestions || [])
+    : (_openingStatementItem?.suggestedQuestions || [])
 
   const handleScrollToBottom = useCallback(() => {
     if (chatList.length > 1 && chatContainerRef.current && !userScrolledRef.current) {
