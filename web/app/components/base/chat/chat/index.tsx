@@ -149,13 +149,13 @@ const Chat: FC<ChatProps> = ({
   }, [chatList.length])
 
   const handleWindowResize = useCallback(() => {
-    if (chatContainerRef.current)
-      setWidth(document.body.clientWidth - (chatContainerRef.current?.clientWidth + 16) - 8)
+    if (chatContainerRef.current && chatContainerRef.current.clientWidth > 0)
+      setWidth(document.body.clientWidth - (chatContainerRef.current.clientWidth + 16) - 8)
 
-    if (chatContainerRef.current && chatFooterRef.current)
+    if (chatContainerRef.current && chatFooterRef.current && chatContainerRef.current.clientWidth > 0)
       chatFooterRef.current.style.width = `${chatContainerRef.current.clientWidth}px`
 
-    if (chatContainerInnerRef.current && chatFooterInnerRef.current)
+    if (chatContainerInnerRef.current && chatFooterInnerRef.current && chatContainerInnerRef.current.clientWidth > 0)
       chatFooterInnerRef.current.style.width = `${chatContainerInnerRef.current.clientWidth}px`
   }, [])
 
@@ -184,13 +184,15 @@ const Chat: FC<ChatProps> = ({
   }, [handleWindowResize])
 
   useEffect(() => {
-    if (chatFooterRef.current && chatContainerRef.current) {
+    if (chatFooterRef.current && chatContainerRef.current && chatContainerInnerRef.current) {
       // container padding bottom
       const resizeContainerObserver = new ResizeObserver((entries) => {
         for (const entry of entries) {
           const { blockSize } = entry.borderBoxSize[0]
-          chatContainerRef.current!.style.paddingBottom = `${blockSize + 80}px`
-          handleScrollToBottom()
+          if (blockSize > 0) {
+            chatContainerRef.current!.style.paddingBottom = `${blockSize + 80}px`
+            handleScrollToBottom()
+          }
         }
       })
       resizeContainerObserver.observe(chatFooterRef.current)
@@ -199,14 +201,26 @@ const Chat: FC<ChatProps> = ({
       const resizeFooterObserver = new ResizeObserver((entries) => {
         for (const entry of entries) {
           const { inlineSize } = entry.borderBoxSize[0]
-          chatFooterRef.current!.style.width = `${inlineSize}px`
+          if (inlineSize > 0)
+            chatFooterRef.current!.style.width = `${inlineSize}px`
         }
       })
       resizeFooterObserver.observe(chatContainerRef.current)
 
+      // footer inner width
+      const resizeFooterInnerObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const { inlineSize } = entry.borderBoxSize[0]
+          if (inlineSize > 0 && chatFooterInnerRef.current)
+            chatFooterInnerRef.current.style.width = `${inlineSize}px`
+        }
+      })
+      resizeFooterInnerObserver.observe(chatContainerInnerRef.current)
+
       return () => {
         resizeContainerObserver.disconnect()
         resizeFooterObserver.disconnect()
+        resizeFooterInnerObserver.disconnect()
       }
     }
   }, [handleScrollToBottom])
