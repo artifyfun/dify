@@ -102,6 +102,7 @@ def _get_user() -> EndUser | Account | None:
                 import logging
 
                 from extensions.ext_database import db
+
                 logger = logging.getLogger(__name__)
 
                 account = None
@@ -115,7 +116,7 @@ def _get_user() -> EndUser | Account | None:
                     if not account:
                         logger.warning(
                             "LOGIN_DISABLED is true but DEFAULT_LOGIN_USER %s not found or not active.",
-                            dify_config.DEFAULT_LOGIN_USER
+                            dify_config.DEFAULT_LOGIN_USER,
                         )
 
                 # Method 2: Fallback to the first active account if not configured or not found

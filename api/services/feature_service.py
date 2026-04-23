@@ -343,14 +343,16 @@ class FeatureService:
             features.is_allow_create_workspace = enterprise_info["IsAllowCreateWorkspace"]
 
         if "Branding" in enterprise_info:
-            features.branding.application_title = enterprise_info["Branding"].get("applicationTitle") \
-                or features.branding.application_title
-            features.branding.login_page_logo = enterprise_info["Branding"].get("loginPageLogo") \
-                or features.branding.login_page_logo
-            features.branding.workspace_logo = enterprise_info["Branding"].get("workspaceLogo") \
-                or features.branding.workspace_logo
-            features.branding.favicon = enterprise_info["Branding"].get("favicon") \
-                or features.branding.favicon
+            features.branding.application_title = (
+                enterprise_info["Branding"].get("applicationTitle") or features.branding.application_title
+            )
+            features.branding.login_page_logo = (
+                enterprise_info["Branding"].get("loginPageLogo") or features.branding.login_page_logo
+            )
+            features.branding.workspace_logo = (
+                enterprise_info["Branding"].get("workspaceLogo") or features.branding.workspace_logo
+            )
+            features.branding.favicon = enterprise_info["Branding"].get("favicon") or features.branding.favicon
 
         if "WebAppAuth" in enterprise_info:
             features.webapp_auth.allow_sso = enterprise_info["WebAppAuth"].get("allowSso", False)
