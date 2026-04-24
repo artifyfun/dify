@@ -126,8 +126,6 @@ const Question: FC<QuestionProps> = ({
           className="w-full bg-background-gradient-bg-fill-chat-bubble-bg-3 px-4 py-3 text-sm text-text-primary"
           style={{
             borderRadius: '12px 0 12px 12px',
-            background: '#E1EFFF',
-            color: '#333333',
             fontSize: '14px',
             fontWeight: 500,
             lineHeight: '28px',

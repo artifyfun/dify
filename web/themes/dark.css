@@ -402,6 +402,7 @@ html[data-theme="dark"] {
   --color-background-gradient-bg-fill-chat-bg-2: #1d1d20;
   --color-background-gradient-bg-fill-chat-bubble-bg-1: rgb(200 206 218 / 0.08);
   --color-background-gradient-bg-fill-chat-bubble-bg-2: rgb(200 206 218 / 0.02);
+  --color-background-gradient-bg-fill-chat-bubble-bg-3: #27314d;
   --color-background-gradient-bg-fill-debug-bg-1: rgb(200 206 218 / 0.08);
   --color-background-gradient-bg-fill-debug-bg-2: rgb(24 24 27 / 0.04);
 
